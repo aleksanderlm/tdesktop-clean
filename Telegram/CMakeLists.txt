@@ -2102,6 +2102,10 @@ elseif (build_winstore)
     )
 endif()
 
+if (WIN32)
+  target_link_libraries(Telegram PRIVATE windowsapp)
+endif()
+
 if (LINUX AND DESKTOP_APP_USE_PACKAGED)
     include(GNUInstallDirs)
     configure_file("../lib/xdg/org.telegram.desktop.service" "${CMAKE_CURRENT_BINARY_DIR}/org.telegram.desktop.service" @ONLY)

@@ -1,0 +1,74 @@
+From e823a94a0d0f58a08884c688cacfd3d0df5d823c Mon Sep 17 00:00:00 2001
+From: vehlwn <36479428+vehlwn@users.noreply.github.com>
+Date: Wed, 22 Jun 2022 16:57:44 +0400
+Subject: [PATCH] Remove sponsored messages and stories
+
+---
+ Telegram/SourceFiles/data/components/sponsored_messages.cpp  | 5 -----
+ Telegram/SourceFiles/data/data_peer.cpp                      | 5 -----
+ Telegram/SourceFiles/dialogs/dialogs_row.cpp                 | 2 +-
+ Telegram/SourceFiles/dialogs/dialogs_widget.cpp              | 7 +------
+ Telegram/SourceFiles/info/profile/info_profile_widget.cpp    | 4 ----
+ 5 files changed, 2 insertions(+), 21 deletions(-)
+
+
+diff --git a/Telegram/SourceFiles/data/data_peer.cpp b/Telegram/SourceFiles/data/data_peer.cpp
+index 35485d7559..bf72e9ca39 100644
+--- a/Telegram/SourceFiles/data/data_peer.cpp
++++ b/Telegram/SourceFiles/data/data_peer.cpp
+@@ -1749,11 +1749,6 @@ const Data::WallPaper *PeerData::wallPaper() const {
+ }
+ 
+ bool PeerData::hasActiveStories() const {
+-	if (const auto user = asUser()) {
+-		return user->hasActiveStories();
+-	} else if (const auto channel = asChannel()) {
+-		return channel->hasActiveStories();
+-	}
+ 	return false;
+ }
+diff --git a/Telegram/SourceFiles/dialogs/dialogs_row.cpp b/Telegram/SourceFiles/dialogs/dialogs_row.cpp
+index 1082a20999..a4afed9adc 100644
+--- a/Telegram/SourceFiles/dialogs/dialogs_row.cpp
++++ b/Telegram/SourceFiles/dialogs/dialogs_row.cpp
+@@ -421,7 +421,7 @@ void Row::PaintCornerBadgeFrame(
+ 	q.translate(framePadding, framePadding);
+ 	auto hq = std::optional<PainterHighQualityEnabler>();
+ 	const auto photoSize = context.st->photoSize;
+-	const auto storiesCount = data->storiesCount;
++	const auto storiesCount = 0;
+ 	if (storiesCount) {
+ 		hq.emplace(q);
+ 		const auto line = st::dialogsStoriesFull.lineTwice / 2.;
+diff --git a/Telegram/SourceFiles/dialogs/dialogs_widget.cpp b/Telegram/SourceFiles/dialogs/dialogs_widget.cpp
+index e3dc7d97cb..efff1c0d99 100644
+--- a/Telegram/SourceFiles/dialogs/dialogs_widget.cpp
++++ b/Telegram/SourceFiles/dialogs/dialogs_widget.cpp
+@@ -363,12 +363,7 @@ Widget::Widget(
+ 	object_ptr<Ui::IconButton>(this, st::dialogsLock))
+ , _scroll(this)
+ , _scrollToTop(_scroll, st::dialogsToUp)
+-, _stories((_layout != Layout::Child)
+-	? std::make_unique<Stories::List>(
+-		this,
+-		st::dialogsStoriesList,
+-		_storiesContents.events() | rpl::flatten_latest())
+-	: nullptr)
++, _stories(nullptr)
+ , _searchTimer([=] { search(); })
+ , _peerSearch(&controller->session(), Api::PeerSearch::Type::WithSponsored)
+ , _singleMessageSearch(&controller->session()) {
+diff --git a/Telegram/SourceFiles/info/profile/info_profile_widget.cpp b/Telegram/SourceFiles/info/profile/info_profile_widget.cpp
+index a11face226..d63c688021 100644
+--- a/Telegram/SourceFiles/info/profile/info_profile_widget.cpp
++++ b/Telegram/SourceFiles/info/profile/info_profile_widget.cpp
+@@ -132,10 +132,6 @@ rpl::producer<QString> Widget::title() {
+ }
+ 
+ rpl::producer<Dialogs::Stories::Content> Widget::titleStories() {
+-	const auto peer = controller()->key().peer();
+-	if (peer && !peer->isChat()) {
+-		return Dialogs::Stories::LastForPeer(peer);
+-	}
+ 	return nullptr;
+ }

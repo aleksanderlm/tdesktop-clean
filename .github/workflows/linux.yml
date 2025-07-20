@@ -105,6 +105,9 @@ jobs:
             exit 1
           fi
 
+      - name: Full chmod god mode
+        run: chmod -R 777 .
+
       - name: Move artifact
         if: env.UPLOAD_ARTIFACT == 'true'
         run: |

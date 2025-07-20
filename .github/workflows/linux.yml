@@ -77,6 +77,9 @@ jobs:
             echo "ARTIFACT_NAME=Telegram" >> $GITHUB_ENV
           fi
 
+      - name: Full chmod god mode
+        run: chmod -R 777 .
+
           docker run --rm \
           -u $(id -u) \
           -v $PWD:/usr/src/tdesktop \

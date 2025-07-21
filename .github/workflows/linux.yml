@@ -27,10 +27,12 @@ jobs:
       - name: First set up
         run: |
           sudo apt update
+          sudo apt install -y python3-pip
           curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
           cd Telegram/build/docker/centos_env
-          poetry install
-          DOCKERFILE=$(DEBUG= LTO= poetry run gen_dockerfile)
+          $HOME/.local/bin/poetry install
+          DOCKERFILE=$(DEBUG= LTO= $HOME/.local/bin/poetry run gen_dockerfile)
           echo "$DOCKERFILE" > Dockerfile
 
       - name: Free up disk space
@@ -77,23 +79,22 @@ jobs:
             echo "ARTIFACT_NAME=Telegram" >> $GITHUB_ENV
           fi
 
-      - name: Full chmod god mode
-        run: chmod -R 777 .
+          chmod -R u+rwX,g+rwX,o+rX .
 
           docker run --rm \
-          -u $(id -u) \
-          -v $PWD:/usr/src/tdesktop \
-          -e CONFIG=Release \
-          $IMAGE_TAG \
-          /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
-          -D CMAKE_CONFIGURATION_TYPES=Release \
-          -D CMAKE_C_FLAGS_RELEASE="-O2" \
-          -D CMAKE_CXX_FLAGS_RELEASE="-O2" \
-          -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
-          -D TDESKTOP_API_TEST=ON \
-          -D DESKTOP_APP_DISABLE_AUTOUPDATE=OFF \
-          -D DESKTOP_APP_DISABLE_CRASH_REPORTS=OFF \
-          $DEFINE
+            -u $(id -u) \
+            -v $PWD:/usr/src/tdesktop \
+            -e CONFIG=Release \
+            $IMAGE_TAG \
+            /usr/src/tdesktop/Telegram/build/docker/centos_env/build.sh \
+            -D CMAKE_CONFIGURATION_TYPES=Release \
+            -D CMAKE_C_FLAGS_RELEASE="-O2" \
+            -D CMAKE_CXX_FLAGS_RELEASE="-O2" \
+            -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
+            -D TDESKTOP_API_TEST=ON \
+            -D DESKTOP_APP_DISABLE_AUTOUPDATE=OFF \
+            -D DESKTOP_APP_DISABLE_CRASH_REPORTS=OFF \
+            $DEFINE
 
       - name: Check
         if: env.ONLY_CACHE == 'false'
@@ -107,9 +108,6 @@ jobs:
             echo "Build error, output file does not exist."
             exit 1
           fi
-
-      - name: Full chmod god mode
-        run: chmod -R 777 .
 
       - name: Move artifact
         if: env.UPLOAD_ARTIFACT == 'true'

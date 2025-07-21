@@ -64,9 +64,8 @@ jobs:
           rm -rf ${{ runner.temp }}/.buildx-cache
           mv ${{ runner.temp }}/.buildx-cache{-new,}
 
-      - name: Make all shell scripts executable
-        run: |
-          find Telegram/build/docker/centos_env -type f -name '*.sh' -exec chmod +x {} +
+      - name: Make configure.sh executable
+        run: chmod +x Telegram/configure.sh
 
       - name: Telegram Desktop build
         if: env.ONLY_CACHE == 'false'

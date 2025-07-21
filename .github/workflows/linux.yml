@@ -67,6 +67,9 @@ jobs:
       - name: Make configure.sh executable
         run: chmod +x Telegram/configure.sh
 
+      - name: Make build.sh executable
+        run: chmod +x Telegram/build/docker/centos_env/build.sh
+
       - name: Telegram Desktop build
         if: env.ONLY_CACHE == 'false'
         run: |
